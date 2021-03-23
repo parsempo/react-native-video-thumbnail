@@ -1,6 +1,6 @@
 {
   "name": "react-native-video-thumbnail",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Get thumbnail from local video file.",
   "main": "index.js",
   "scripts": {},

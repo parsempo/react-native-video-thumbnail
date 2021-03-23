@@ -49,6 +49,7 @@ RCT_EXPORT_METHOD(get:(NSString *)filepath resolve:(RCTPromiseResolveBlock)resol
 - (NSString *)saveImageToFile:(UIImage *)image {
     NSString *documentsDirectory = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) lastObject];
     NSString *imageSubdirectory = [documentsDirectory stringByAppendingPathComponent:@"Thumbnails"];
+    [[NSFileManager defaultManager] createDirectoryAtPath:imageSubdirectory withIntermediateDirectories:NO attributes:nil error:nil];
     NSString *fileName = [NSString stringWithFormat:@"%@.jpg", [[NSUUID UUID] UUIDString]];
     NSString *filePath = [imageSubdirectory stringByAppendingPathComponent:fileName];
 
