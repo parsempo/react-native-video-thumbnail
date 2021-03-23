@@ -20,7 +20,10 @@ RCT_EXPORT_METHOD(get:(NSString *)filepath resolve:(RCTPromiseResolveBlock)resol
         generator.appliesPreferredTrackTransform = YES;
 
         NSError *err = NULL;
-        CMTime time = CMTimeMake(0, 60);
+        CMTime oneSecond = CMTimeMake(1, 60);
+        CMTime mid = CMTimeMultiplyByRatio(asset.duration, 1, 2);
+        
+        CMTime time = CMTimeMinimum(oneSecond, mid);
 
         CGImageRef imgRef = [generator copyCGImageAtTime:time actualTime:NULL error:&err];
         UIImage *thumbnail = [UIImage imageWithCGImage:imgRef];
@@ -30,11 +33,9 @@ RCT_EXPORT_METHOD(get:(NSString *)filepath resolve:(RCTPromiseResolveBlock)resol
             [result setObject:@(thumbnail.size.width) forKey:@"width"];
             [result setObject:@(thumbnail.size.height) forKey:@"height"];
 
-            NSString *header = @"data:image/png;base64,";
-            NSString *imgdata = [UIImagePNGRepresentation(thumbnail) base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
-            NSString *data = [header stringByAppendingString:imgdata];
+            NSString *path = [self saveImageToFile:thumbnail];
 
-            [result setObject:data forKey:@"data"];
+            [result setObject:path forKey:@"path"];
         }
         CGImageRelease(imgRef);
 
@@ -43,6 +44,18 @@ RCT_EXPORT_METHOD(get:(NSString *)filepath resolve:(RCTPromiseResolveBlock)resol
     } @catch(NSException *e) {
         reject(e.reason, nil, nil);
     }
+}
+
+- (NSString *)saveImageToFile:(UIImage *)image {
+    NSString *documentsDirectory = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) lastObject];
+    NSString *imageSubdirectory = [documentsDirectory stringByAppendingPathComponent:@"Thumbnails"];
+    NSString *fileName = [NSString stringWithFormat:@"%@.jpg", [[NSUUID UUID] UUIDString]];
+    NSString *filePath = [imageSubdirectory stringByAppendingPathComponent:fileName];
+
+    NSData *imageData = UIImageJPEGRepresentation(image, 1);
+    [imageData writeToFile:filePath atomically:YES];
+    
+    return filePath;
 }
 
 
